@@ -1,0 +1,103 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/adept/pioneer3/protos/Pioneer3dx.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/solids/protos/SolidBox.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.4590997679414358 0.43615471771774283 0.7739486192821043 1.87358735354
+  position 0.667854066002787 -7.843921186213369 16.639609498149714
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 7 7
+  floorTileSize 0.2 0.2
+  wallHeight 0.6
+  wallAppearance BrushedAluminium {
+    colorOverride 0.4 0.4 0.4
+    IBLStrength 4
+  }
+}
+SolidBox {
+  translation 0 -2.43 0.38
+  size 0.5 0.5 0.5
+}
+SolidBox {
+  translation 1.93 -0.65 0.38
+  name "box(1)"
+  size 0.5 0.5 0.5
+}
+SolidBox {
+  translation 0 2.38 0.38
+  name "box(2)"
+  size 0.5 0.5 0.5
+}
+Wall {
+  translation -1.95691 -2.14947 0
+  rotation 0 0 -1 0.523599
+  name "wall(2)"
+  size 0.3 1.3 0.5
+}
+Wall {
+  translation 0.087165 0.630958 0
+  rotation 0 0 1 -2.094395307179586
+  name "wall(3)"
+  size 0.3 1.3 0.5
+}
+Wall {
+  translation 2.88112 2.04 0
+  rotation 0 0 1 4.692820414042842e-06
+  name "wall(4)"
+  size 0.5 1.7 0.5
+}
+Wall {
+  translation -2.44215 1.41 0
+  rotation 0 0 1 -2.094395307179586
+  size 0.3 1.3 0.5
+}
+Wall {
+  translation 1.75802 -2.365 0
+  rotation 0 0 -1 2.10734e-07
+  name "wall(1)"
+  size 0.3 1.3 0.5
+}
+Pioneer3dx {
+  hidden position_0_0 0.00020569021429630058
+  hidden position_0_1 205.4359790838036
+  hidden position_0_2 191.600523230145
+  hidden translation_1 -0.1918 0 0
+  hidden rotation_1 0.5774294393921757 -0.5773106800204478 -0.577310680013427 2.0942762487708197
+  hidden position_1_0 -323.4718598167526
+  hidden translation_2 0 -0.0521014 0.012843
+  hidden rotation_2 1 0 0 3.2537761565858845
+  hidden translation_4 0 0.165 0
+  hidden rotation_4 -0.7020053153099367 0.702005363898546 -0.11990415478316971 2.9029238408196165
+  hidden translation_9 0 -0.165 0
+  hidden rotation_9 -0.5701709087570377 0.5701709774281344 -0.5914475389295486 2.0733782672729415
+  translation 0 0 0
+  rotation -0.01731140255023178 -0.010984371498603594 -0.9997898073717918 2.0106848809456555
+  controller "MCL_Localization_Final"
+  extensionSlot [
+    GPS {
+    }
+    InertialUnit {
+    }
+    Lidar {
+      rotation 0 1 0 0
+      horizontalResolution 360
+      fieldOfView 6.28
+      numberOfLayers 1
+      maxRange 6
+      type "rotating"
+    }
+  ]
+}

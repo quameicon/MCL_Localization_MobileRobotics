@@ -1,0 +1,219 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/solids/protos/SolidBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/solids/protos/SolidPipe.proto"
+
+WorldInfo {
+  info [
+    "Laser Perception Lab World"
+    "Contains an E-puck robot with laser distance sensors in an arena with obstacles"
+    "Designed for learning beam models and sensor uncertainty"
+  ]
+  title "Robot Perception Lab"
+  basicTimeStep 64
+  contactProperties [
+    ContactProperties {
+      material1 "DPM"
+      coulombFriction [
+        0.5
+      ]
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.19721734975909408 0.007602305532311703 0.9803303126521147 3.0660636788005826
+  position 2.544603855246781 -0.07747532942125679 1.293489534157161
+  follow "e-puck"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+  floorTileSize 0.25 0.25
+}
+E-puck {
+  hidden linearVelocity_0 -8.313679129300089e-05 3.705274899377248e-05 5.2861413404154226e-05
+  hidden angularVelocity_0 -0.0005120679469468492 -0.0011105533826125677 2.201496252793742
+  hidden translation_1 0 0.026 0.02
+  hidden rotation_1 0 1 0 2.860836734942081
+  hidden linearVelocity_1 0.032490473315693304 -0.04712936614103019 -4.814613049219933e-05
+  hidden angularVelocity_1 2.5843959680761786 1.7815427132077108 2.203508578584342
+  hidden translation_2 0 -0.025999999999999992 0.02
+  hidden rotation_2 0 1 0 4.852579484242838
+  hidden linearVelocity_2 -0.03268108277131432 0.04715625542320964 -6.949546568204563e-05
+  hidden angularVelocity_2 -2.5855973449077183 -1.7835072618599348 2.20111802498643
+  translation -0.10916918049199464 0.0696569736001442 -0.00013073199327149482
+  rotation -3.857330104817512e-05 -1.8710338479277876e-05 0.9999999990810119 2.3157509437483648
+  controller "student_laser_controller"
+  turretSlot [
+    InertialUnit {
+    }
+    GPS {
+    }
+    Compass {
+    }
+    DistanceSensor {
+      translation 0.037 0 0
+      name "laser0"
+      lookupTable [
+        0 1000 0
+        0.1 1000 0.05
+        1 0 0.4
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      translation 0.026 0.026 0
+      rotation 0 0 1 0.785398
+      name "laser1"
+      lookupTable [
+        0 1000 0
+        0.1 1000 0.05
+        1 0 0.4
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      translation 0 0.037 0
+      rotation 0 0 1 1.5708
+      name "laser2"
+      lookupTable [
+        0 1000 0
+        0.1 1000 0.05
+        1 0 0.4
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      translation -0.026 0.026 0
+      rotation 0 0 1 2.356194
+      name "laser3"
+      lookupTable [
+        0 1000 0
+        0.1 1000 0.05
+        1 0 0.4
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      translation -0.037 0 0
+      rotation 0 0 1 3.141593
+      name "laser4"
+      lookupTable [
+        0 1000 0
+        0.1 1000 0.05
+        1 0 0.4
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      translation -0.026 -0.026 0
+      rotation 0 0 1 3.926991
+      name "laser5"
+      lookupTable [
+        0 1000 0
+        0.1 1000 0.05
+        1 0 0.4
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      translation 0 -0.037 0
+      rotation 0 0 1 4.712389
+      name "laser6"
+      lookupTable [
+        0 1000 0
+        0.1 1000 0.05
+        1 0 0.4
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      translation 0.026 -0.026 0
+      rotation 0 0 1 5.497787
+      name "laser7"
+      lookupTable [
+        0 1000 0
+        0.1 1000 0.05
+        1 0 0.4
+      ]
+      type "laser"
+      aperture 0.01
+    }
+  ]
+}
+SolidBox {
+  translation 0.3 0.3 0.05
+  name "box1"
+  size 0.2 0.2 0.1
+  appearance PBRAppearance {
+    baseColor 0.8 0.2 0.2
+    roughness 1
+    metalness 0
+  }
+}
+SolidBox {
+  translation -0.4 0.2 0.05
+  name "box2"
+  size 0.15 0.3 0.1
+  appearance PBRAppearance {
+    baseColor 0.2 0.8 0.2
+    roughness 1
+    metalness 0
+  }
+}
+SolidBox {
+  translation 0.6 -0.3 0.05
+  name "box3"
+  size 0.25 0.15 0.1
+  appearance PBRAppearance {
+    baseColor 0.2 0.2 0.8
+    roughness 1
+    metalness 0
+  }
+}
+SolidPipe {
+  translation -0.2 -0.4 0.05
+  name "pipe1"
+  height 0.1
+  radius 0.08
+  thickness 0.02
+  appearance PBRAppearance {
+    baseColor 0.8 0.8 0.2
+    roughness 1
+    metalness 0
+  }
+}
+SolidBox {
+  translation 0 0.6 0.05
+  name "box4"
+  size 0.8 0.1 0.1
+  appearance PBRAppearance {
+    baseColor 0.8 0.4 0.8
+    roughness 1
+    metalness 0
+  }
+}
+SolidBox {
+  translation -0.7 -0.1 0.05
+  name "box5"
+  size 0.1 0.4 0.1
+  appearance PBRAppearance {
+    baseColor 0.4 0.8 0.8
+    roughness 1
+    metalness 0
+  }
+}

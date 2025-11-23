@@ -1,0 +1,111 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "../protos/E-puck.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/solids/protos/SolidBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/solids/protos/SolidPipe.proto"
+
+WorldInfo {
+  info [
+    "Enhanced Perception Lab World"
+    "E-puck with proximity sensors and landmarks for MCL testing"
+  ]
+  title "Robot Perception Lab - Enhanced"
+  basicTimeStep 64
+  contactProperties [
+    ContactProperties {
+      material1 "DPM"
+      coulombFriction [
+        0.6
+      ]
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.10178534261405021 0.07410638920002632 0.9920423313088381 2.39436909798947
+  position 1.5126673363185212 -2.3335271758176135 0.6334184746654794
+  follow "e-puck"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 3 3
+  floorTileSize 0.25 0.25
+}
+E-puck {
+  translation 0 -1 0.02
+  controller "student_beam_controller"
+  camera_fieldOfView 0.83
+  camera_height 60
+  turretSlot [
+    InertialUnit {
+    }
+    GPS {
+    }
+    Compass {
+    }
+  ]
+  kinematic TRUE
+}
+SolidBox {
+  translation 0.8 0.8 0.05
+  size 0.4 0.2 0.1
+  appearance PBRAppearance {
+    baseColor 0.9 0.4 0.4
+    roughness 0.8
+    metalness 0
+  }
+}
+SolidBox {
+  translation -0.9 0.7 0.05
+  size 0.3 0.3 0.1
+  appearance PBRAppearance {
+    baseColor 0.3 0.8 0.3
+    roughness 0.8
+    metalness 0
+  }
+}
+SolidPipe {
+  translation 1 -0.8 0.05
+  height 0.2
+  radius 0.08
+  thickness 0.02
+  appearance PBRAppearance {
+    baseColor 0.8 0.8 0.2
+    roughness 0.8
+    metalness 0
+  }
+}
+SolidBox {
+  translation 0 1 0.05
+  size 0.6 0.15 0.1
+  appearance PBRAppearance {
+    baseColor 0.8 0.4 0.8
+    roughness 0.7
+    metalness 0
+  }
+}
+SolidBox {
+  translation -1.2 0 0.05
+  size 0.15 0.5 0.1
+  appearance PBRAppearance {
+    baseColor 0.4 0.8 0.8
+    roughness 0.7
+    metalness 0
+  }
+}
+SolidPipe {
+  translation 0.5 -1 0.05
+  height 0.25
+  radius 0.07
+  thickness 0.02
+  appearance PBRAppearance {
+    baseColor 0.9 0.6 0.3
+    roughness 0.7
+    metalness 0
+  }
+}

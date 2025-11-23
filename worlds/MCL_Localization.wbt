@@ -1,0 +1,120 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/obstacles/protos/OilBarrel.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/containers/protos/CardboardBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/adept/pioneer3/protos/Pioneer3dx.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.18587584504200258 0.009866394623670826 -0.9825237017431445 3.033677286683298
+  position 8.533147365899508 -2.3849801791970973 4.548125798712573
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 10 10
+  floorTileSize 1 1
+  wallThickness 0.5
+  wallHeight 1
+  wallAppearance BrushedAluminium {
+    IBLStrength 6
+  }
+}
+OilBarrel {
+  translation -3.68 -4 1.8
+  name "LANDMARK_2"
+  height 2
+  radius 0.5
+}
+CardboardBox {
+  translation -3.69 3.34 1.6
+  name "LANDMARK_1"
+  size 0.6 0.6 2
+}
+Pioneer3dx {
+  hidden position_0_0 -1.5204563737459336
+  hidden position_0_1 120.89515606353126
+  hidden position_0_2 129.58509554520472
+  hidden linearVelocity_0 1.3653950275517727e-09 -1.0110308942035675e-09 -1.5857033368392418e-11
+  hidden angularVelocity_0 -9.124917218795626e-10 -1.3461057943934386e-09 -1.2021719462811892e-10
+  hidden translation_1 -0.1918 0 0
+  hidden rotation_1 0.017798799952041706 -0.7069947471905526 -0.7069947879335703 3.105998726377899
+  hidden position_1_0 -366.0011339426737
+  hidden linearVelocity_1 7.034042810429264e-10 -6.058851501534854e-10 2.0054564973844516e-10
+  hidden angularVelocity_1 -4.172090340269914e-09 1.0101910545029423e-09 -1.064235113592855e-07
+  hidden translation_2 0 -0.0521014 0.012843
+  hidden rotation_2 -0.9999999999999999 0 0 1.5763861262576597
+  hidden linearVelocity_2 -6.462384875936605e-10 2.6515611688513294e-10 2.3417664788724933e-10
+  hidden angularVelocity_2 -8.583013281481144e-10 -1.1034735790437816e-09 -1.0657177777047223e-07
+  hidden translation_4 0 0.165 0
+  hidden rotation_4 -0.028065799767128065 0.02806574235612971 0.9992120020243107 4.711600732634232
+  hidden linearVelocity_4 1.7168758923697923e-09 -1.233036138503126e-09 -1.2206942592559414e-10
+  hidden angularVelocity_4 1.0312190411414225e-08 1.42466186375707e-08 -1.2839979408081957e-10
+  hidden translation_9 0 -0.165 0
+  hidden rotation_9 -0.678171823168127 0.6781718799974995 -0.2831357968210232 2.5897643912772246
+  hidden linearVelocity_9 1.6849822447562657e-09 -1.2100785705404915e-09 -1.072744168590566e-10
+  hidden angularVelocity_9 1.1070695244531256e-08 1.5300458383850713e-08 -1.2895648594523575e-10
+  translation 1.7077826849165303 1.3813855453644588 0.09486400573014422
+  rotation 0.018965459089856657 -0.005879266528944298 0.9998028533598974 2.5178406219867417
+  controller "MCLocalization"
+  extensionSlot [
+    GPS {
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 0
+            metalness 0
+          }
+          geometry Box {
+            size 0.05 0.02 0.05
+          }
+        }
+      ]
+      accuracy 0.01
+    }
+    InertialUnit {
+      translation 0 -0.03 0.16
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.03 0.01 0.03
+          }
+        }
+      ]
+      name "inertial_unit"
+    }
+    Lidar {
+      translation 0 0.01 0.17
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 1 0 0
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.05
+            radius 0.04
+          }
+        }
+      ]
+      horizontalResolution 360
+      fieldOfView 6.28319
+      verticalFieldOfView 0.1
+      numberOfLayers 1
+      minRange 0.05
+      maxRange 3.5
+      type "rotating"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+
+<div>
+  <div id="plot"></div>
+   
+  <div class="container">
+      <div class="row">
+        <div class="col-sm-6">
+            <div class="row text-center">
+                <form>
+                    <div class="form-group">
+                        <label>Random Movement</label>
+                        <div>
+                            <label class="switch">
+                                <input type="checkbox" onclick="modifyMovementRandomness()" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                      </div>
+                </form>
+            </div>
+
+            <div class="row text-center">
+                <div class="col-sm-4 col-sm-offset-4">
+                    <hr>
+                    <!-- joystick -->
+                    <div id="joystick">
+                        <div class="row">
+                            <div class="col-sm-4 col-sm-offset-4"> 
+                                <button type="button" class="btn btn-primary" onclick="move('UP')"><i class="glyphicon glyphicon-arrow-up"></i></button>
+                            </div>
+                            <div class="col-sm-offset-4">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <button type="button" class="btn btn-primary" onclick="move('LEFT')"><i class="glyphicon glyphicon-arrow-left"></i></button>
+                            </div>
+                            <div class="col-sm-4 col-sm-offset-4">
+                                <button type="button" class="btn btn-primary" onclick="move('RIGHT')"><i class="glyphicon glyphicon-arrow-right"></i></button>
+                            </div>
+                            <div class="col-sm-offset-4">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 col-sm-offset-4">
+                                <button type="button" class="btn btn-primary" onclick="move('DOWN')"><i class="glyphicon glyphicon-arrow-down"></i></button>
+                            </div>
+                            <div class="col-sm-offset-4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-offset-4"></div>
+                
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <form>
+                <div class="form-group">
+                    <label for="numParticles">Number of Particles:</label>
+                    <input type="text" value="100" class="form-control" id="numParticles" placeholder="100">
+                    <label id="errorNumParticles"  style="color: red; display: none;"> Invalid Number: it should be more than 1</label>
+                </div>
+                <div class="form-group">
+                    <label for="sigmaXy">Sigma xy:</label>
+                    <input type="text" class="form-control" id="sigmaXy" placeholder="0.001" value="0.001">
+                    <label id="errorSigmaXy" style="color: red;display: none;"> Invalid Number: it should be more than 0</label>
+                </div>
+                <div class="form-group">
+                    <label for="sigmaTheta">Sigma theta:</label>
+                    <input type="text" class="form-control" id="sigmaTheta" placeholder="2" value="2">
+                    <label id="errorSigmaTheta" style="color: red;display: none;"> Invalid Number: it should be more than 0</label>
+                </div>
+              
+                
+            </form>
+            <button class="btn btn-primary" onclick="setParams()">Reset</button>
+        </div>
+      </div>
+    </div>
+</div>
+<script src="plotly-latest.min.js"></script>
+<link rel="stylesheet" href="bootstrap-3/css/bootstrap.min.css">
+<script src="bootstrap-3/js/jquery.min.js"></script>
+<script src="bootstrap-3/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="css/pos-prediction.css">

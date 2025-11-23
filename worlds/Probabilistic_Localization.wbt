@@ -1,0 +1,114 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/solids/protos/SolidBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/solids/protos/SolidPipe.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+
+WorldInfo {
+  info [
+    "Laser Perception Lab World"
+    "Contains an E-puck robot with laser distance sensors in an arena with obstacles"
+    "Designed for learning beam models and sensor uncertainty"
+  ]
+  title "Robot Perception Lab"
+  basicTimeStep 64
+  contactProperties [
+    ContactProperties {
+      material1 "DPM"
+      coulombFriction [
+        0.5
+      ]
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.4763310388541861 -0.05419576536630907 0.8775941889281467 3.340639835724904
+  position 1.3973787311960688 0.7918355664604696 1.1909818347227037
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+  floorTileSize 0.25 0.25
+}
+SolidBox {
+  translation 0.3 0.3 0.05
+  name "box1"
+  size 0.2 0.2 0.1
+  appearance PBRAppearance {
+    baseColor 0.8 0.2 0.2
+    roughness 1
+    metalness 0
+  }
+}
+SolidBox {
+  translation -0.4 0.2 0.05
+  name "box2"
+  size 0.15 0.3 0.1
+  appearance PBRAppearance {
+    baseColor 0.2 0.8 0.2
+    roughness 1
+    metalness 0
+  }
+}
+SolidBox {
+  translation 0.6 -0.3 0.05
+  name "box3"
+  size 0.25 0.15 0.1
+  appearance PBRAppearance {
+    baseColor 0.2 0.2 0.8
+    roughness 1
+    metalness 0
+  }
+}
+SolidPipe {
+  translation -0.2 -0.4 0.05
+  name "pipe1"
+  height 0.1
+  radius 0.08
+  thickness 0.02
+  appearance PBRAppearance {
+    baseColor 0.8 0.8 0.2
+    roughness 1
+    metalness 0
+  }
+}
+SolidBox {
+  translation 0 0.81 0.05
+  name "box4"
+  size 0.8 0.1 0.1
+  appearance PBRAppearance {
+    baseColor 0.8 0.4 0.8
+    roughness 1
+    metalness 0
+  }
+}
+SolidBox {
+  translation -0.7 -0.34 0.05
+  name "box5"
+  size 0.1 0.4 0.1
+  appearance PBRAppearance {
+    baseColor 0.4 0.8 0.8
+    roughness 1
+    metalness 0
+  }
+}
+E-puck {
+  hidden position_0_0 102.01864158409924
+  hidden position_0_1 154.0006237783375
+  hidden linearVelocity_0 0.009188714429108034 -0.0555802837818686 2.953130114769671e-05
+  hidden angularVelocity_0 -0.00021743328365904515 0.0010897610456938546 0.08302871953526272
+  hidden rotation_1 0 0.9999999999999999 0 1.487676669225859
+  hidden linearVelocity_1 0.008716087973959011 -0.05334394355155587 -9.188004280732413e-06
+  hidden angularVelocity_1 2.656367514019196 0.4439631553676962 0.09368790161959434
+  hidden rotation_2 0 1 0 3.2041764060274374
+  hidden linearVelocity_2 0.009700702605192436 -0.05799372437322884 -5.3426173067478276e-05
+  hidden angularVelocity_2 2.9111683624642932 0.4830384443001464 0.09780297538035315
+  translation 0.44214963496572113 0.7632565820939796 -0.0001267855884111678
+  rotation 0.001037201426168126 -0.0008902859366441339 -0.9999990658016398 1.4010157209397796
+}

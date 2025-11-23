@@ -1,0 +1,80 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/obstacles/protos/OilBarrel.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Roughcast.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/containers/protos/WoodenBox.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.6539970639816809 0.633942091927161 0.41280172527056636 2.3634757687009187
+  position -2.240929162817837 4.905513575177676 12.912442681427946
+}
+TexturedBackgroundLight {
+}
+TexturedBackground {
+}
+RectangleArena {
+  translation 0 -0.21 -2.14119e-07
+  rotation 1 0 0 -1.5707953071795862
+  floorSize 10 10
+  floorAppearance Parquetry {
+    textureTransform TextureTransform {
+    }
+  }
+  wallThickness 0.03
+  wallHeight 0.5
+  wallAppearance BrushedAluminium {
+    IBLStrength 6
+  }
+}
+OilBarrel {
+  translation -2.99 0.35 -3.62
+  rotation 1 0 0 -1.5707953071795862
+}
+Wall {
+  translation 3.42 0.11 -2.1
+  size 2 0.4 1
+}
+Wall {
+  translation -1.6 0.05 -2.44
+  name "wall(4)"
+  size 1.7 0.3 0.001
+  appearance Roughcast {
+    textureTransform TextureTransform {
+      scale 2.4 1
+    }
+    IBLStrength 3
+  }
+}
+Wall {
+  translation -1.03 0.13 2.75
+  name "wall(7)"
+  size 3 0.6 0.3
+}
+Wall {
+  translation -2.77 0.04 0.56
+  name "wall(6)"
+  size 1.5 0.5 0.2
+}
+Wall {
+  translation 0.902239 0.15 -3.95
+  rotation 0 1 0 1.57
+  name "wall(5)"
+  size 1.4 0.5 0.5
+}
+Wall {
+  translation 3.7295 0 1.70237
+  rotation 0 1 0 1.57
+  name "wall(2)"
+  size 1.9 0.5 0.13
+}
+WoodenBox {
+  translation 1.82 0.16 1.45
+}

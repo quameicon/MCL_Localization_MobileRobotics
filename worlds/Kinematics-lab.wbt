@@ -1,0 +1,54 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/obstacles/protos/OilBarrel.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/adept/pioneer3/protos/Pioneer3dx.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.3126504751347745 -0.29654923816502554 0.9023902868170417 4.5574411349128825
+  position 0.1815889887349368 9.915395312827918 6.540583350438758
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 10 10
+  floorTileSize 1 1
+  wallHeight 0.5
+}
+OilBarrel {
+  translation -0.86 -0.48 0.44
+  rotation 1 0 0 4.692820414042842e-06
+}
+OilBarrel {
+  translation 1.19 -2.08 0.439995
+  rotation 1 0 0 4.692820414042842e-06
+  name "oil barrel(1)"
+}
+Pioneer3dx {
+  hidden position_0_0 6.872414744100408e-05
+  hidden position_0_1 139.07518949672328
+  hidden position_0_2 164.38647180164847
+  hidden linearVelocity_0 0.4274632030522379 -0.27981068567507533 3.4876558489252813e-12
+  hidden angularVelocity_0 1.3726166875695313e-07 -8.982576566722174e-08 -5.878657815373423e-05
+  hidden rotation_1 0.577376721127084 -0.5773370427675875 -0.5773370427652418 2.094355322549457
+  hidden position_1_0 -400.60446376114896
+  hidden linearVelocity_1 0.42746743373982077 -0.2798042233061087 6.146885547341118e-12
+  hidden angularVelocity_1 1.4707744947812403e-07 -9.625365862037758e-08 -5.920332242230642e-05
+  hidden rotation_2 1 0 0 1.519395898344571
+  hidden linearVelocity_2 0.42746771192361444 -0.27980379881302386 5.9047782459758705e-12
+  hidden angularVelocity_2 7.461086739697746 11.399366687433778 -0.00014715184576950878
+  hidden rotation_4 0.33448829531369784 -0.3344882630032182 -0.8810421001355306 1.6971088834447223
+  hidden linearVelocity_4 0.4274693484945353 -0.27981903743044495 2.653754456702788e-08
+  hidden angularVelocity_4 2.869952193759265 4.384175394480125 -8.365806786189903e-05
+  hidden rotation_9 0.26082025689778504 -0.26082021736840166 -0.9294867442861535 1.6438539075693996
+  hidden linearVelocity_9 0.42745308977442054 -0.27980839462768603 -2.653323705302952e-08
+  hidden angularVelocity_9 2.869950157117921 4.384172283194241 -8.365794825085295e-05
+  translation 2.454655666100547 -4.2393253339515375 0.09481477826426722
+  rotation 0.017288786425220273 0.057951274299677356 0.9981696988343148 -0.5806189989065667
+}
