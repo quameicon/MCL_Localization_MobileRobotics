@@ -9,19 +9,22 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Roughcast.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/BrushedAluminium.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/containers/protos/WoodenBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/humans/pedestrian/protos/Pedestrian.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/adept/pioneer3/protos/Pioneer3dx.proto"
 
 WorldInfo {
+  coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.6539970639816809 0.633942091927161 0.41280172527056636 2.3634757687009187
-  position -2.240929162817837 4.905513575177676 12.912442681427946
+  orientation -0.6475359398998066 0.6546439506142001 0.3900493615714639 2.41879948455764
+  position -2.282085752817767 2.6439852989377512 6.7793340051737605
 }
 TexturedBackgroundLight {
 }
 TexturedBackground {
 }
 RectangleArena {
-  translation 0 -0.21 -2.14119e-07
+  translation 0 -0.1 -1.01962e-07
   rotation 1 0 0 -1.5707953071795862
   floorSize 10 10
   floorAppearance Parquetry {
@@ -33,6 +36,10 @@ RectangleArena {
   wallAppearance BrushedAluminium {
     IBLStrength 6
   }
+}
+Pedestrian {
+  translation 3.71314 1.1 -4.42314
+  rotation 0.28108491207243697 0.6785977877244662 0.6785987877241534 -2.593565307179586
 }
 OilBarrel {
   translation -2.99 0.35 -3.62
@@ -77,4 +84,85 @@ Wall {
 }
 WoodenBox {
   translation 1.82 0.16 1.45
+}
+Pioneer3dx {
+  hidden position_0_0 14013.05586964225
+  hidden position_0_1 414.98339488770927
+  hidden position_0_2 3854.5486666084466
+  hidden linearVelocity_0 0.03735107940954118 -7.197565718434559e-08 0.07074529060413434
+  hidden angularVelocity_0 -2.5195507061484244e-06 3.4504264809615154e-05 -4.70204239169552e-06
+  hidden translation_1 -0.1918 0 0
+  hidden rotation_1 -0.5772841862102556 0.5773833078401194 0.5773833078459794 4.18869117987704
+  hidden position_1_0 -2851.5927201911127
+  hidden linearVelocity_1 0.03735235536174174 -7.615352540882801e-08 0.07074462351009507
+  hidden angularVelocity_1 -2.2548933506567716e-06 3.4944022921676916e-05 -4.200685056375217e-06
+  hidden translation_2 0 -0.0521014 0.012843
+  hidden rotation_2 1 0 0 0.9734092684195848
+  hidden linearVelocity_2 0.037357721465282795 -7.63665026017299e-08 0.0707417937822136
+  hidden angularVelocity_2 1.886638274171544 6.0901026199801136e-05 -0.9958451111795061
+  hidden translation_4 0 0.165 0
+  hidden rotation_4 -0.7003562447146557 0.7003562942665861 -0.1378484369529103 2.8676224829530863
+  hidden linearVelocity_4 0.03734537481905314 -9.329263304955255e-07 0.07073750144676616
+  hidden angularVelocity_4 0.7255612291053685 3.918595432782981e-05 -0.38314375677876783
+  hidden translation_9 0 -0.165 0
+  hidden rotation_9 -0.6521391562207156 0.652139217625251 -0.38656042446021177 2.4038584427391725
+  hidden linearVelocity_9 0.03735429422735962 7.929003860922709e-07 0.07075439554434186
+  hidden angularVelocity_9 0.7255644618141248 3.9186052833639584e-05 -0.38314546394117427
+  translation -1.313625910120048 -0.005185129859663698 -0.0926448171026962
+  rotation 0.7641833383241966 0.46899014404924255 0.44280025995064326 -1.8566382352102844
+  name "Pioneer3dx"
+  controller "MCLocalization"
+  supervisor TRUE
+  extensionSlot [
+    GPS {
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 0
+            metalness 0
+          }
+          geometry Box {
+            size 0.05 0.02 0.05
+          }
+        }
+      ]
+    }
+    InertialUnit {
+      translation 0 -0.03 0.16
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 0 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.03 0.01 0.03
+          }
+        }
+      ]
+      name "inertial_unit"
+    }
+    Lidar {
+      translation 0 0.01 0.17
+      rotation 0 0 -1 -5.307179586466759e-06
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 1 0 0
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.05
+            radius 0.04
+          }
+        }
+      ]
+      horizontalResolution 16
+      fieldOfView 4.1888
+      verticalFieldOfView 0.1
+      numberOfLayers 1
+      maxRange 10
+      type "rotating"
+    }
+  ]
 }
