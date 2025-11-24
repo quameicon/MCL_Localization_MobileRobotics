@@ -16,8 +16,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.6475359398998066 0.6546439506142001 0.3900493615714639 2.41879948455764
-  position -2.282085752817767 2.6439852989377512 6.7793340051737605
+  orientation -0.3103197321299037 0.7070213552226262 0.6354702724046072 3.1726775444298343
+  position 10.747071619292715 4.226558031554009 1.005864857910537
 }
 TexturedBackgroundLight {
 }
@@ -52,7 +52,7 @@ Wall {
 Wall {
   translation -1.6 0.05 -2.44
   name "wall(4)"
-  size 1.7 0.3 0.001
+  size 1.8 0.4 0.41
   appearance Roughcast {
     textureTransform TextureTransform {
       scale 2.4 1
@@ -68,7 +68,7 @@ Wall {
 Wall {
   translation -2.77 0.04 0.56
   name "wall(6)"
-  size 1.5 0.5 0.2
+  size 1.5 0.5 0.6
 }
 Wall {
   translation 0.902239 0.15 -3.95
@@ -80,40 +80,35 @@ Wall {
   translation 3.7295 0 1.70237
   rotation 0 1 0 1.57
   name "wall(2)"
-  size 1.9 0.5 0.13
+  size 1.9 0.5 0.3
 }
 WoodenBox {
   translation 1.82 0.16 1.45
 }
 Pioneer3dx {
-  hidden position_0_0 14013.05586964225
-  hidden position_0_1 414.98339488770927
-  hidden position_0_2 3854.5486666084466
-  hidden linearVelocity_0 0.03735107940954118 -7.197565718434559e-08 0.07074529060413434
-  hidden angularVelocity_0 -2.5195507061484244e-06 3.4504264809615154e-05 -4.70204239169552e-06
+  hidden position_0_0 14013.0559784558
+  hidden position_0_1 509.6183424548992
+  hidden position_0_2 3957.8740184091153
   hidden translation_1 -0.1918 0 0
-  hidden rotation_1 -0.5772841862102556 0.5773833078401194 0.5773833078459794 4.18869117987704
-  hidden position_1_0 -2851.5927201911127
-  hidden linearVelocity_1 0.03735235536174174 -7.615352540882801e-08 0.07074462351009507
-  hidden angularVelocity_1 -2.2548933506567716e-06 3.4944022921676916e-05 -4.200685056375217e-06
+  hidden rotation_1 -0.5773260685664935 0.5773623691197226 0.5773623691218691 4.18875400586556
+  hidden position_1_0 -3071.2483115002033
   hidden translation_2 0 -0.0521014 0.012843
-  hidden rotation_2 1 0 0 0.9734092684195848
-  hidden linearVelocity_2 0.037357721465282795 -7.63665026017299e-08 0.0707417937822136
-  hidden angularVelocity_2 1.886638274171544 6.0901026199801136e-05 -0.9958451111795061
+  hidden rotation_2 -1 0 0 5.053881596565072
   hidden translation_4 0 0.165 0
-  hidden rotation_4 -0.7003562447146557 0.7003562942665861 -0.1378484369529103 2.8676224829530863
-  hidden linearVelocity_4 0.03734537481905314 -9.329263304955255e-07 0.07073750144676616
-  hidden angularVelocity_4 0.7255612291053685 3.918595432782981e-05 -0.38314375677876783
+  hidden rotation_4 0.7071066587094289 -0.7071067005429559 0.0005359627239839137 3.1426644953948366
   hidden translation_9 0 -0.165 0
-  hidden rotation_9 -0.6521391562207156 0.652139217625251 -0.38656042446021177 2.4038584427391725
-  hidden linearVelocity_9 0.03735429422735962 7.929003860922709e-07 0.07075439554434186
-  hidden angularVelocity_9 0.7255644618141248 3.9186052833639584e-05 -0.38314546394117427
-  translation -1.313625910120048 -0.005185129859663698 -0.0926448171026962
-  rotation 0.7641833383241966 0.46899014404924255 0.44280025995064326 -1.8566382352102844
+  hidden rotation_9 -0.5454785872501513 0.5454785818797625 0.6363224242174893 4.274992520297017
+  translation 0.208525 0.0273494 -2.60874
+  rotation 0.5865383160979781 0.6021852091700333 0.5416140485676046 -2.12164472303247
   name "Pioneer3dx"
   controller "MCLocalization"
   supervisor TRUE
   extensionSlot [
+    Lidar {
+      horizontalResolution 4
+      numberOfLayers 1
+      maxRange 4
+    }
     GPS {
       children [
         Shape {
@@ -141,28 +136,6 @@ Pioneer3dx {
         }
       ]
       name "inertial_unit"
-    }
-    Lidar {
-      translation 0 0.01 0.17
-      rotation 0 0 -1 -5.307179586466759e-06
-      children [
-        Shape {
-          appearance PBRAppearance {
-            baseColor 1 0 0
-            metalness 0
-          }
-          geometry Cylinder {
-            height 0.05
-            radius 0.04
-          }
-        }
-      ]
-      horizontalResolution 16
-      fieldOfView 4.1888
-      verticalFieldOfView 0.1
-      numberOfLayers 1
-      maxRange 10
-      type "rotating"
     }
   ]
 }

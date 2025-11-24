@@ -1,383 +1,330 @@
-# File: MCLLocalization.py
 """
-Main controller for Monte Carlo Localization (professional version).
-Place this file and the companion modules in the same controller folder inside Webots.
-Files included in this textdoc:
-- MCLLocalization.py  (this file, main loop)
-- motion_model.py
-- sensor_model.py
-- resampling.py
-- map_utils.py
-- utils.py
-- requirements.txt (at bottom)
-
-Notes:
-- This controller is written for Webots R2025a and a Pioneer3dx robot with devices named exactly:
-  GPS, InertialUnit, Lidar, left wheel motor "left wheel motor", right wheel motor "right wheel motor"
-  Adjust device names to match your robot if different.
-- The code is modular and well commented. It's ready to run but you may want to tune parameters.
+Monte Carlo Localization (Particle Filter) for Webots
+- Uses GPS, IMU, LiDAR, and wheel encoders
+- Particle filter localization
+- Real-time visualization
+- CSV logging and final plot saved with particle number in filename
 """
 
-from controller import Robot, Motor
-import math, time, os
-from motion_model import apply_odometry_to_particles
-from sensor_model import update_weights_with_lidar
-from resampling import systematic_resample
-from map_utils import LikelihoodField
-import utils
-
-# ------------------ Configuration ------------------
-TIME_STEP = 64  # ms
-NUM_PARTICLES = 500
-WHEEL_RADIUS = 0.0975  # meters (Pioneer typical)
-WHEEL_BASE = 0.331  # meters (distance between wheels)
-MAX_LIDAR_RANGE = 6.0
-LOG_DIR = 'results'
-# ---------------------------------------------------
-
-
-def ensure_log_dir():
-    if not os.path.exists(LOG_DIR):
-        os.makedirs(LOG_DIR)
-
-
-class MCLController:
-    def __init__(self):
-        self.robot = Robot()
-        self.timestep = int(self.robot.getBasicTimeStep()) if self.robot.getBasicTimeStep() else TIME_STEP
-        # Devices
-        self.gps = self.robot.getDevice('gps')
-        self.gps.enable(self.timestep)
-        self.imu = self.robot.getDevice('inertial unit')
-        self.imu.enable(self.timestep)
-        self.lidar = self.robot.getDevice('lidar')
-        self.lidar.enable(self.timestep)
-        # enable point cloud for some webots versions
-        try:
-            self.lidar.enablePointCloud()
-        except Exception:
-            pass
-        # Motors / encoders
-        self.left_motor = self.robot.getDevice('left wheel motor')
-        self.right_motor = self.robot.getDevice('right wheel motor')
-        self.left_enc = self.robot.getDevice('left wheel sensor')
-        self.right_enc = self.robot.getDevice('right wheel sensor')
-        self.left_enc.enable(self.timestep)
-        self.right_enc.enable(self.timestep)
-        self.left_motor.setPosition(float('inf'))
-        self.right_motor.setPosition(float('inf'))
-        self.left_motor.setVelocity(0.0)
-        self.right_motor.setVelocity(0.0)
-
-        # Particles state
-        self.num_particles = NUM_PARTICLES
-        self.particles = utils.create_uniform_particles(self.num_particles, x_range=(-3.0,3.0), y_range=(-3.0,3.0))
-
-        # previous encoder values for odometry
-        self.prev_left = self.left_enc.getValue()
-        self.prev_right = self.right_enc.getValue()
-
-        # Map / likelihood field
-        # This creates an internal likelihood field using an occupancy grid. You can provide your own map if you like.
-        self.likelihood = LikelihoodField(cell_size=0.05, xlim=(-3.5,3.5), ylim=(-3.5,3.5))
-
-        # Logging
-        ensure_log_dir()
-        self.logfile = open(os.path.join(LOG_DIR, 'mcl_log.csv'), 'w')
-        self.logfile.write('time,x_est,y_est,theta_est,x_gps,y_gps\n')
-
-    def step(self):
-        return self.robot.step(self.timestep)
-
-    def run(self):
-        start_time = self.robot.getTime()
-        while self.step() != -1:
-            # read sensors
-            gps_v = self.gps.getValues()
-            x_gps = gps_v[0]
-            y_gps = gps_v[2]
-            rpy = self.imu.getRollPitchYaw()
-            yaw = rpy[2]
-            ranges = self.lidar.getRangeImage()
-
-            # odometry
-            cur_left = self.left_enc.getValue()
-            cur_right = self.right_enc.getValue()
-            delta_left = cur_left - self.prev_left
-            delta_right = cur_right - self.prev_right
-            self.prev_left = cur_left
-            self.prev_right = cur_right
-
-            # motion update
-            apply_odometry_to_particles(self.particles, delta_left, delta_right,
-                                        wheel_radius=WHEEL_RADIUS, wheel_base=WHEEL_BASE,
-                                        noise_std={'rot':0.02, 'trans':0.01})
-
-            # measurement update (lidar)
-            update_weights_with_lidar(self.particles, ranges, self.likelihood,
-                                      max_range=MAX_LIDAR_RANGE, sigma=0.2, beam_step=4)
-
-            # normalize weights
-            utils.normalize_particles(self.particles)
-
-            # resample
-            self.particles = systematic_resample(self.particles)
-
-            # estimate pose
-            x_est, y_est, theta_est = utils.estimate_pose(self.particles)
-
-            # logging
-            t = self.robot.getTime() - start_time
-            self.logfile.write(f"{t:.3f},{x_est:.4f},{y_est:.4f},{theta_est:.4f},{x_gps:.4f},{y_gps:.4f}\n")
-
-            # simple explorer behavior to make robot move during experiments (VERY simple)
-            self.left_motor.setVelocity(2.0)
-            self.right_motor.setVelocity(2.0)
-
-        self.logfile.close()
-
-
-if __name__ == '__main__':
-    controller = MCLController()
-    controller.run()
-
-
-# ------------------------------------------------------------------
-# File: motion_model.py
-"""
-Odometry-based motion model for differential-drive robot.
-Applies disturbance/noise and updates particle poses in place.
-"""
-import math, random
-
-def apply_odometry_to_particles(particles, delta_left, delta_right, wheel_radius, wheel_base, noise_std=None):
-    """
-    delta_left/right are wheel rotations (radians) measured from encoders for the last timestep.
-    We convert to linear displacements using wheel_radius.
-    particles: list of dicts with keys 'x','y','theta','w'
-    noise_std: dict with 'rot' and 'trans' standard deviations
-    """
-    if noise_std is None:
-        noise_std = {'rot':0.01, 'trans':0.01}
-    dl = delta_left * wheel_radius
-    dr = delta_right * wheel_radius
-    dc = (dl + dr) / 2.0
-    dtheta = (dr - dl) / wheel_base
-
-    for p in particles:
-        # add noise sampled per-particle
-        trans_noise = random.gauss(0, noise_std['trans'])
-        rot_noise = random.gauss(0, noise_std['rot'])
-        # apply motion
-        p['x'] += (dc + trans_noise) * math.cos(p['theta'])
-        p['y'] += (dc + trans_noise) * math.sin(p['theta'])
-        p['theta'] = utils_angle_normalize(p['theta'] + dtheta + rot_noise)
-
-
-def utils_angle_normalize(a):
-    while a > math.pi:
-        a -= 2*math.pi
-    while a <= -math.pi:
-        a += 2*math.pi
-    return a
-
-
-# ------------------------------------------------------------------
-# File: sensor_model.py
-"""
-Measurement model using a precomputed likelihood field and (coarsely) simulating lidar beams.
-This implementation uses a simple projection: for a subset of beams, compute expected endpoint
-and lookup the likelihood from the likelihood field. It's optimized for speed and clarity.
-"""
+from controller import Robot
+import numpy as np
+import matplotlib.pyplot as plt
 import math
-import utils
-
-
-def update_weights_with_lidar(particles, ranges, likelihood_field, max_range=6.0, sigma=0.2, beam_step=1):
-    """
-    particles: list of {'x','y','theta','w'}
-    ranges: array-like lidar ranges in Webots order (0..N-1)
-    likelihood_field: LikelihoodField instance with method likelihood_at(x,y)
-    sigma: measurement noise for gaussian
-    beam_step: skip beams to speed up (e.g., 4 means use every 4th beam)
-    """
-    nbeams = len(ranges)
-    for p in particles:
-        weight = 1.0
-        # iterate over subset of beams
-        for i in range(0, nbeams, beam_step):
-            r = ranges[i]
-            if r == float('inf') or r <= 0 or r > max_range:
-                continue
-            # compute beam angle relative to robot
-            # Webots lidar 0-based index angles go from -fov/2 to +fov/2 typically; but to stay robust we compute from index
-            angle = (i / nbeams) * 2.0*math.pi - math.pi  # approximate for 360deg lidars
-            # transform to global
-            bx = p['x'] + r * math.cos(p['theta'] + angle)
-            by = p['y'] + r * math.sin(p['theta'] + angle)
-            # use likelihood field
-            q = likelihood_field.likelihood_at(bx, by, sigma)
-            weight *= q
-            # avoid weights going to zero
-            if weight == 0:
-                weight = 1e-300
-        p['w'] = weight
-
-
-# ------------------------------------------------------------------
-# File: resampling.py
-"""
-Systematic (low-variance) resampling implementation.
-"""
 import random
+import os
+import csv
 
+# ---------------- Simulation parameters ----------------
+TIME_STEP = 64
+MAX_STEPS = 2000
+
+# ---------------- User-editable parameters ----------------
+NUM_PARTICLES = 600
+SAVE_RESULTS = True  # Toggle saving CSV and plots
+SNAP_EVERY = 250     # Save snapshots every N steps
+
+motion_noise_start, motion_noise_end = 0.25, 0.03
+turn_noise_start, turn_noise_end = 0.25, 0.01
+sense_noise_start, sense_noise_end = 0.8, 0.12
+
+# ---------------- Robot initialization ----------------
+robot = Robot()
+
+# Motors
+left_motor = robot.getDevice("left wheel")
+right_motor = robot.getDevice("right wheel")
+left_motor.setPosition(float('inf'))
+right_motor.setPosition(float('inf'))
+left_motor.setVelocity(0.0)
+right_motor.setVelocity(0.0)
+
+# Wheel encoders
+left_enc = right_enc = None
+try:
+    left_enc = robot.getDevice("left wheel sensor")
+    right_enc = robot.getDevice("right wheel sensor")
+    left_enc.enable(TIME_STEP)
+    right_enc.enable(TIME_STEP)
+except Exception:
+    left_enc = right_enc = None
+
+# GPS
+gps = None
+try:
+    gps = robot.getDevice("gps")
+    if gps:
+        gps.enable(TIME_STEP)
+except Exception:
+    gps = None
+
+# Inertial Unit
+imu = None
+try:
+    imu = robot.getDevice("inertial_unit")
+    if imu:
+        imu.enable(TIME_STEP)
+except Exception:
+    imu = None
+
+# LiDAR
+lidar = None
+try:
+    lidar = robot.getDevice("lidar")
+    if lidar:
+        lidar.enable(TIME_STEP)
+        lidar.enablePointCloud()
+except Exception:
+    lidar = None
+
+# Robot kinematics
+WHEEL_RADIUS = 0.0975
+AXLE_LENGTH = 0.331
+
+# ---------------- Landmarks ----------------
+webots_landmarks = [
+    ("Pedestrian", 3.71, -4.42),
+    ("OilBarrel", -2.99, -3.62),
+    ("Wall_1", 3.42, -2.10),
+    ("Wall_4", -1.60, -2.44),
+    ("Wall_6", -1.03, 2.75),
+    ("Wall_5", -2.77, 0.56),
+    ("Wall_2", 0.90, -3.95),
+    ("Wall_3", 3.72, 1.70),
+    ("WoodenBox", 1.82, 1.45)
+]
+landmark_positions = [(x, z) for _, x, z in webots_landmarks]
+
+# ---------------- Particle Filter ----------------
+def init_particles():
+    xs = [x for x,_ in landmark_positions]
+    zs = [z for _,z in landmark_positions]
+    min_x, max_x = min(xs)-1.0, max(xs)+1.0
+    min_z, max_z = min(zs)-1.0, max(zs)+1.0
+    w = 1.0 / NUM_PARTICLES
+    return [[random.uniform(min_x,max_x), random.uniform(min_z,max_z),
+             random.uniform(-math.pi, math.pi), w] for _ in range(NUM_PARTICLES)]
+
+def normalize(angle):
+    return (angle + math.pi) % (2*math.pi) - math.pi
+
+def motion_step(particles, delta_s, delta_theta, motion_noise, turn_noise):
+    for i in range(len(particles)):
+        x, z, th, w = particles[i]
+        ds = delta_s + random.gauss(0, motion_noise)
+        dth = delta_theta + random.gauss(0, turn_noise)
+        x += ds * math.cos(th + dth/2.0)
+        z += ds * math.sin(th + dth/2.0)
+        th = normalize(th + dth)
+        particles[i] = [x, z, th, w]
+    return particles
+
+def measurement_update_range_only(particles, measurements, sense_noise):
+    if not measurements:
+        return particles
+    for i in range(len(particles)):
+        x, z, th, w = particles[i]
+        prob = 1.0
+        for r_meas, lm_idx in measurements:
+            lx, lz = landmark_positions[lm_idx]
+            expected = math.hypot(lx - x, lz - z)
+            prob *= (1.0 / (math.sqrt(2*math.pi) * sense_noise)) * \
+                    math.exp(-0.5*((r_meas-expected)/sense_noise)**2)
+        particles[i][3] = w * prob
+    total = sum(p[3] for p in particles)
+    if total <= 0 or not np.isfinite(total):
+        return init_particles()
+    for p in particles:
+        p[3] /= total
+    return particles
 
 def systematic_resample(particles):
     N = len(particles)
-    weights = [p['w'] for p in particles]
-    # normalize weights safely
-    total = sum(weights)
-    if total <= 0:
-        # reset equal weights
-        for p in particles:
-            p['w'] = 1.0 / N
-        return particles.copy()
-    weights = [w/total for w in weights]
-    positions = [(random.random() + i) / N for i in range(N)]
-    indexes = []
-    cumsum = 0.0
-    i = 0
-    cumw = weights[0]
-    for pos in positions:
-        while pos > cumw:
-            i += 1
-            cumw += weights[i]
-        indexes.append(i)
-    # create new particle set
+    weights = np.array([p[3] for p in particles], dtype=float)
+    if weights.sum() <= 0 or not np.isfinite(weights.sum()):
+        return init_particles()
+    positions = (np.arange(N)+random.random())/N
+    cumulative = np.cumsum(weights)
     new_particles = []
-    for idx in indexes:
-        p = particles[idx].copy()
-        p['w'] = 1.0 / N
-        new_particles.append(p)
+    idx = 0
+    for pos in positions:
+        while pos > cumulative[idx]:
+            idx += 1
+            if idx >= N:
+                idx = N-1
+                break
+        x, z, th, _ = particles[idx]
+        new_particles.append([x+random.gauss(0,0.001),
+                              z+random.gauss(0,0.001),
+                              normalize(th+random.gauss(0,0.001)), 1.0/N])
     return new_particles
 
-
-# ------------------------------------------------------------------
-# File: map_utils.py
-"""
-Simple likelihood field implementation.
-- Builds a coarse occupancy grid and precomputes distance transform (Euclidean)
-- Provides likelihood_at(x,y,sigma) returning a probability-like value
-"""
-import numpy as np
-from scipy import ndimage
-
-class LikelihoodField:
-    def __init__(self, cell_size=0.05, xlim=(-3.5,3.5), ylim=(-3.5,3.5)):
-        self.cell_size = cell_size
-        self.xmin, self.xmax = xlim
-        self.ymin, self.ymax = ylim
-        self.nx = int((self.xmax - self.xmin) / cell_size)
-        self.ny = int((self.ymax - self.ymin) / cell_size)
-        # for simplicity start with empty occupancy and add walls/boxes heuristically
-        self.occupancy = np.zeros((self.nx, self.ny), dtype=np.uint8)
-        # add boundary walls
-        self._draw_boundary()
-        # add some internal obstacles if desired (this is placeholder — you can use a real map)
-        self._draw_sample_obstacles()
-        # compute distance transform
-        self._compute_distance_transform()
-
-    def _draw_boundary(self):
-        self.occupancy[0,:] = 1
-        self.occupancy[-1,:] = 1
-        self.occupancy[:,0] = 1
-        self.occupancy[:,-1] = 1
-
-    def _draw_sample_obstacles(self):
-        # draw three boxes roughly matching the world layout — tune or replace with your own
-        def world_to_idx(x,y):
-            ix = int((x - self.xmin) / self.cell_size)
-            iy = int((y - self.ymin) / self.cell_size)
-            return ix, iy
-        for cx, cy, size in [(-1.0, -2.4, 0.5), (1.9, -0.65, 0.5), (0.0, 2.4, 0.5)]:
-            half = int((size/2.0) / self.cell_size)
-            ix, iy = world_to_idx(cx, cy)
-            self.occupancy[max(0,ix-half):min(self.nx,ix+half), max(0,iy-half):min(self.ny,iy+half)] = 1
-
-    def _compute_distance_transform(self):
-        # compute distance to nearest occupied cell (in meters)
-        occupied = self.occupancy == 1
-        dt = ndimage.distance_transform_edt(~occupied) * self.cell_size
-        self.distance = dt
-
-    def likelihood_at(self, x, y, sigma=0.2):
-        # if outside map return small probability
-        if x < self.xmin or x >= self.xmax or y < self.ymin or y >= self.ymax:
-            return 0.01
-        ix = int((x - self.xmin) / self.cell_size)
-        iy = int((y - self.ymin) / self.cell_size)
-        d = float(self.distance[ix, iy])
-        # gaussian of the distance
-        p = math.exp(-(d*d) / (2.0 * sigma * sigma))
-        return max(p, 1e-6)
-
-
-# ------------------------------------------------------------------
-# File: utils.py
-"""
-Common utilities: particle creation, normalization, pose estimation, angle helpers.
-"""
-import math, random
-
-
-def create_uniform_particles(N, x_range=(-3,3), y_range=(-3,3)):
-    particles = []
-    for _ in range(N):
-        particles.append({'x': random.uniform(*x_range),
-                          'y': random.uniform(*y_range),
-                          'theta': random.uniform(-math.pi, math.pi),
-                          'w': 1.0/N})
-    return particles
-
-
-def normalize_particles(particles):
-    total = sum(p['w'] for p in particles)
-    if total <= 0:
-        N = len(particles)
-        for p in particles:
-            p['w'] = 1.0/N
-        return
-    for p in particles:
-        p['w'] /= total
-
-
 def estimate_pose(particles):
-    x = 0.0
-    y = 0.0
-    sin_sum = 0.0
-    cos_sum = 0.0
-    for p in particles:
-        w = p['w']
-        x += p['x'] * w
-        y += p['y'] * w
-        sin_sum += math.sin(p['theta']) * w
-        cos_sum += math.cos(p['theta']) * w
-    theta = math.atan2(sin_sum, cos_sum)
-    return x, y, theta
+    x = sum(p[0]*p[3] for p in particles)
+    z = sum(p[1]*p[3] for p in particles)
+    s = sum(math.sin(p[2])*p[3] for p in particles)
+    c = sum(math.cos(p[2])*p[3] for p in particles)
+    th = math.atan2(s, c)
+    return (x, z, th)
 
+# ---------------- File setup ----------------
+RESULTS_DIR = r"C:\Users\Listowell Lord Adams\OneDrive - St. Francis Xavier University\Webot Labs\results"
+os.makedirs(RESULTS_DIR, exist_ok=True)
+RESULT_CSV = os.path.join(RESULTS_DIR, f"mcl_results_{NUM_PARTICLES}_particles.csv")
+RESULT_PLOT = os.path.join(RESULTS_DIR, f"mcl_final_plot_{NUM_PARTICLES}_particles.png")
 
-def angle_normalize(a):
-    while a > math.pi:
-        a -= 2*math.pi
-    while a <= -math.pi:
-        a += 2*math.pi
-    return a
+# ---------------- Initialize particles ----------------
+particles = init_particles()
 
+# ---------------- Visualization ----------------
+plt.ion()
+fig, ax = plt.subplots(figsize=(7,7))
+ax.set_title("MCL — particles converge")
+ax.set_xlabel("X [m]"); ax.set_ylabel("Z [m]")
+ax.grid(True)
+for nm, x, z in webots_landmarks:
+    ax.scatter([x],[z],marker='s',s=80,color='orange')
+    ax.text(x+0.05,z+0.05,nm,fontsize=8)
+particle_scatter = ax.scatter([p[0] for p in particles],[p[1] for p in particles],
+                              s=6, alpha=0.25, c='blue')
+est_dot, = ax.plot([0.0],[0.0],marker='*',color='red',markersize=12,label='PF estimate')
+true_dot, = ax.plot([0.0],[0.0],marker='o',color='green',markersize=6,label='True pose')
+ax.legend(loc='upper right')
 
-# ------------------------------------------------------------------
-# File: requirements.txt
-numpy
-scipy
+# ---------------- Odometry bookkeeping ----------------
+prev_left = prev_right = None
+odom_x = odom_z = odom_theta = 0.0
+if left_enc and right_enc:
+    prev_left = left_enc.getValue()
+    prev_right = right_enc.getValue()
 
-# End of textdoc
+current_motion_noise = motion_noise_start
+current_turn_noise = turn_noise_start
+current_sense_noise = sense_noise_start
+
+# CSV logging
+csv_data = []
+
+# ---------------- Main loop ----------------
+step = 0
+while robot.step(TIME_STEP) != -1 and step < MAX_STEPS:
+    step += 1
+    ratio = min(step/(MAX_STEPS*0.9),1.0)
+    current_motion_noise = motion_noise_start*(1-ratio) + motion_noise_end*ratio
+    current_turn_noise  = turn_noise_start*(1-ratio) + turn_noise_end*ratio
+    current_sense_noise = sense_noise_start*(1-ratio) + sense_noise_end*ratio
+
+    # Simple motion commands
+    cycle = step%400
+    if cycle<300:
+        v_cmd = 0.08; omega_cmd = 0.0
+    else:
+        v_cmd = 0.0; omega_cmd = 0.4 if ((step//400)%2==0) else -0.4
+    v_left = (v_cmd-(omega_cmd*AXLE_LENGTH/2))/WHEEL_RADIUS
+    v_right= (v_cmd+(omega_cmd*AXLE_LENGTH/2))/WHEEL_RADIUS
+    v_left = max(min(v_left,6.28),-6.28)
+    v_right= max(min(v_right,6.28),-6.28)
+    left_motor.setVelocity(v_left)
+    right_motor.setVelocity(v_right)
+
+    # ---------------- Odometry ----------------
+    delta_s = delta_theta = 0.0
+    if left_enc and right_enc:
+        l = left_enc.getValue()
+        r = right_enc.getValue()
+        dl = (l-prev_left)*WHEEL_RADIUS
+        dr = (r-prev_right)*WHEEL_RADIUS
+        prev_left, prev_right = l, r
+        delta_s = (dl+dr)/2
+        delta_theta = (dr-dl)/AXLE_LENGTH
+    else:
+        dt = TIME_STEP/1000
+        delta_s = v_cmd*dt
+        delta_theta = omega_cmd*dt
+    odom_theta += delta_theta
+    odom_x += delta_s*math.cos(odom_theta)
+    odom_z += delta_s*math.sin(odom_theta)
+
+    # ---------------- True pose ----------------
+    true_x = odom_x; true_z = odom_z; true_theta = odom_theta
+    if gps:
+        try:
+            g = gps.getValues()
+            true_x, true_z = g[0], g[2]
+        except: pass
+    if imu:
+        try:
+            true_theta = imu.getRollPitchYaw()[2]
+        except: pass
+
+    # ---------------- LiDAR measurements ----------------
+    measurements = []
+    lidar_min, lidar_max = float('nan'), float('nan')
+    if lidar:
+        try:
+            cloud = lidar.getPointCloud()
+            xs = [pt.x for pt in cloud]
+            if xs:
+                lidar_min = min(xs)
+                lidar_max = max(xs)
+            for idx, pt in enumerate(cloud):
+                measurements.append((pt.x, idx % len(landmark_positions)))  # naive mapping
+        except: pass
+
+    # ---------------- Particle filter ----------------
+    particles = motion_step(particles, delta_s, delta_theta, current_motion_noise, current_turn_noise)
+    particles = measurement_update_range_only(particles, [(math.hypot(lx-true_x,lz-true_z),i)
+                                                          for i,(lx,lz) in enumerate(landmark_positions)],
+                                             current_sense_noise)
+    if step % 3 == 0:
+        particles = systematic_resample(particles)
+    est_x, est_z, est_th = estimate_pose(particles)
+
+    # ---------------- Console output ----------------
+    rmse = math.sqrt((est_x-true_x)**2 + (est_z-true_z)**2)
+    print(f"Step {step}: GPS=({true_x:.2f},{true_z:.2f}) "
+          f"IMU yaw={true_theta:.3f} "
+          f"Odometry=({odom_x:.3f},{odom_z:.3f}) "
+          f"Predicted=({est_x:.2f},{est_z:.2f},{est_th:.3f}) "
+          f"LIDAR min/max X={lidar_min:.2f}/{lidar_max:.2f} "
+          f"RMSE={rmse:.3f}")
+
+    # ---------------- Visualization ----------------
+    particle_scatter.set_offsets(np.array([[p[0],p[1]] for p in particles]))
+    est_dot.set_data([est_x],[est_z])
+    true_dot.set_data([true_x],[true_z])
+    ax.set_title(f"Step {step} | Estimated: ({est_x:.2f},{est_z:.2f}) True: ({true_x:.2f},{true_z:.2f})")
+    plt.pause(0.001)
+
+    # CSV logging
+    csv_data.append([step, true_x, true_z, true_theta, est_x, est_z, est_th])
+
+    # Snapshot
+    if SAVE_RESULTS and SNAP_EVERY>0 and step%SNAP_EVERY==0:
+        fig.savefig(os.path.join(RESULTS_DIR,f"mcl_step_{step}_{NUM_PARTICLES}.png"),dpi=180)
+
+# Stop motors
+left_motor.setVelocity(0.0)
+right_motor.setVelocity(0.0)
+
+# ---------------- Save CSV and final plot ----------------
+if SAVE_RESULTS:
+    with open(RESULT_CSV,'w',newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(["Step","True_X","True_Z","True_Theta","Est_X","Est_Z","Est_Theta"])
+        writer.writerows(csv_data)
+
+    plt.ioff()
+    fig2, ax2 = plt.subplots(figsize=(8,8))
+    ax2.set_title(f"MCL Final - Particles and Estimate ({NUM_PARTICLES} particles)")
+    ax2.set_xlabel("X [m]"); ax2.set_ylabel("Z [m]"); ax2.grid(True)
+    for nm,x,z in webots_landmarks:
+        ax2.scatter([x],[z],marker='s',s=100,color='orange')
+        ax2.text(x+0.03,z+0.03,nm,fontsize=8)
+    ax2.scatter([p[0] for p in particles],[p[1] for p in particles],s=6,alpha=0.45,color='blue')
+    ax2.scatter([est_x],[est_z],marker='*',s=200,color='red',label='PF estimate')
+    ax2.scatter([true_x],[true_z],marker='o',s=60,color='green',label='True pose')
+    ax2.legend()
+    fig2.savefig(RESULT_PLOT,dpi=200)
+    plt.show(block=True)
+
+print(f"MCL finished. Total steps: {step}")
